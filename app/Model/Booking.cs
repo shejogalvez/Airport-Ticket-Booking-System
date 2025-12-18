@@ -1,4 +1,4 @@
-namespace app;
+namespace app.Model;
 
 record Booking(
     Passenger Passenger,

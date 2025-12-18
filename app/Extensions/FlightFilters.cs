@@ -1,5 +1,6 @@
-namespace app;
+namespace app.Extensions;
 
+using app.Model;
 public static class FlightsHelperExtension
 {
     // get filtered data methods

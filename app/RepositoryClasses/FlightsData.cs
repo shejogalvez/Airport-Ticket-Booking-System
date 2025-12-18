@@ -1,5 +1,6 @@
-namespace app;
+namespace app.RepositoryClasses;
 
+using app.Model;
 public static class FlightDataManager
 {
 

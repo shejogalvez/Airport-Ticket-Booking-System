@@ -1,5 +1,6 @@
-namespace app;
+namespace app.RepositoryClasses;
 
+using app.Model;
 static class BookingsManager
 {
     private readonly static Dictionary<Guid, Booking> bookings = [];
