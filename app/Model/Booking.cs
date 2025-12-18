@@ -1,6 +1,6 @@
 namespace app.Model;
 
-record Booking(
+public record Booking(
     Passenger Passenger,
     Flight Flight
 )
