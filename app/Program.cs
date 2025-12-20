@@ -12,6 +12,7 @@ class Program
 
     static IUser? GetUser(UserType type)
     {
+        Console.WriteLine("\ninsert username:");
         string username = Console.ReadLine() ?? "default_username";
         IUser user = type switch
         {
@@ -37,7 +38,7 @@ class Program
         IUser? user = null;
         while (user is null)
         {
-            Console.WriteLine("\nType 1 or 2 to select an user type:\n  1.passenger\n  2.manager:");
+            Console.WriteLine("\nType 1 or 2 to select an user type:\n  1.passenger\n  2.manager");
             var userType = Console.ReadLine() ?? "0";
             UserType userTypeCode = userType switch
             {
