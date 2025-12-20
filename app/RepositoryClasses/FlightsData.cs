@@ -1,6 +1,9 @@
 namespace app.RepositoryClasses;
 
 using app.Model;
+
+using CsvHelper;
+using System.Globalization;
 public static class FlightDataManager
 {
 
@@ -30,6 +33,57 @@ public static class FlightDataManager
     public static IEnumerable<Flight> GetAllFlights()
     {
         return Data;
+    }
+
+
+    public static void ImportFromCsv(string filePath, bool overwrite = false)
+    {
+        filePath = Path.GetFullPath(filePath);
+        Flight[] records;
+        try
+        {
+            using var reader = new StreamReader(filePath);
+            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+            // read CSV file
+            records = csv.GetRecords<Flight>().ToArray();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return;
+        }
+
+        // Validate records
+        if (records is null) return;
+        
+        bool errorsFound = false;
+        for (int i=0; i<records.Length; i++)
+        {
+            var record = records[i];
+            var errors = record.GetErrors();
+            if (errors != ErrorCode.NoErrors) {
+                Console.WriteLine($"Invalid flight record found in row {i+1}:");
+                Console.WriteLine(errors);
+                errorsFound = true;
+            }
+            // Console.WriteLine($"{record}");
+        }
+        if (errorsFound) {
+            Console.WriteLine("Import aborted due to invalid records.");
+            return;
+        }
+
+        if (overwrite || _data is null)
+        {
+            _data = [.. records];
+            return;
+        }
+        else
+        {
+            _data = [.. _data.Concat([.. records])];
+        }
+        
+        
     }
 
 }
