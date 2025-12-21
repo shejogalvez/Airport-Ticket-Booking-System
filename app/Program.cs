@@ -54,7 +54,7 @@ class Program
         while (true)
         {
             Console.WriteLine("insert commands for user, type help to list commands");
-            string? command = Utils.ReadInput() ?? "";
+            string? command = IOUtils.ReadInput() ?? "";
             if (command.Equals("help", StringComparison.CurrentCultureIgnoreCase))
                 user.ShowCommands();
             else
