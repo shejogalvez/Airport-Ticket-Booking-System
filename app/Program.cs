@@ -1,6 +1,7 @@
 ﻿namespace app;
 
 using app.Model;
+using app.Utils;
 
 class Program
 {
@@ -13,7 +14,7 @@ class Program
     static IUser? GetUser(UserType type)
     {
         Console.WriteLine("\ninsert username:");
-        string username = Console.ReadLine() ?? "default_username";
+        string username = IOUtils.ReadInput() ?? "default_username";
         IUser user = type switch
         {
             UserType.Passenger => new Passenger(username),
@@ -23,7 +24,7 @@ class Program
         if (type == UserType.Manager)
         {
             Console.WriteLine("\ninsert password:");
-            string password = Console.ReadLine() ?? "";
+            string password = IOUtils.ReadInput() ?? "";
             if (!user.Authorize(password))
             {
                 Console.WriteLine(@"wrong password for ""admin""");
@@ -39,7 +40,7 @@ class Program
         while (user is null)
         {
             Console.WriteLine("\nType 1 or 2 to select an user type:\n  1.passenger\n  2.manager");
-            var userType = Console.ReadLine() ?? "0";
+            var userType = IOUtils.ReadInput() ?? "0";
             UserType userTypeCode = userType switch
             {
                 "1" => UserType.Passenger,
@@ -53,7 +54,7 @@ class Program
         while (true)
         {
             Console.WriteLine("insert commands for user, type help to list commands");
-            string? command = Console.ReadLine() ?? "";
+            string? command = Utils.ReadInput() ?? "";
             if (command.Equals("help", StringComparison.CurrentCultureIgnoreCase))
                 user.ShowCommands();
             else
