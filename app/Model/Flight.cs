@@ -30,6 +30,7 @@ public record Flight(
     string ArrivalAirport, 
     FlightClass Class
 )
+) : IFlightFilterable
 {
     // return a string with the error 
     public ErrorCode GetErrors()

@@ -1,41 +1,45 @@
 namespace app.Extensions;
 
 using app.Model;
-
-public readonly struct FlightFunctions
-{
-    public delegate bool EqualFilter<T>(Flight flight, T value);
-    public delegate bool RangeFilter<T>(Flight flight, T value1, T value2);
-    public readonly static EqualFilter<string> ByDepartureCountry = (flight, country) => 
-        flight.DepartureCountry == country;
-
-    public readonly static EqualFilter<string> ByDestinationCountry = (flight, country) =>
-        flight.DestinationCountry == country ;
-
-    public readonly static EqualFilter<DateTime> ByDate = (flight, date) =>
-        flight.DepartureDate == date ;
-
-    public readonly static RangeFilter<DateTime> ByDateRange = (flight, startDate, endDate) =>
-        flight.DepartureDate >= startDate && flight.DepartureDate <= endDate;
-
-    public readonly static EqualFilter<FlightClass> ByClass = (flight, flightClass) =>
-        flight.Class == flightClass;
-
-    public readonly static RangeFilter<int> ByPriceRange = (flight, minPrice, maxPrice) =>
-        flight.Price >= minPrice && flight.Price <= maxPrice;
-} 
-
 public static class FlightsHelperExtension
 {
     // get filtered data methods
-    
-    public static IEnumerable<Flight> FilterByRange<T>(this IEnumerable<Flight> flightsArray, FlightFunctions.RangeFilter<T> predicate, T value1, T value2)
+    public static IEnumerable<IFlightFilterable> FilterByDepartureCountry(this IEnumerable<IFlightFilterable> FlightsArray, string country)
     {
-        return flightsArray.Where(flight => predicate(flight, value1, value2));
+        return FlightsArray.Where(obj => obj.Flight.DepartureCountry == country);
     }
 
-    public static IEnumerable<Flight> FilterByEquals<T>(this IEnumerable<Flight> flightsArray, FlightFunctions.EqualFilter<T> predicate, T value)
+    public static IEnumerable<IFlightFilterable> FilterByDestinationCountry(this IEnumerable<IFlightFilterable> FlightsArray, string country)
     {
-        return flightsArray.Where(flight => predicate(flight, value));
+        return FlightsArray.Where(obj => obj.Flight.DestinationCountry == country);
+    }
+
+    public static IEnumerable<IFlightFilterable> FilterByDate(this IEnumerable<IFlightFilterable> FlightsArray, DateTime date)
+    {
+        return FlightsArray.Where(obj => obj.Flight.DepartureDate == date);
+    }
+
+    public static IEnumerable<IFlightFilterable> FilterByDateRange(this IEnumerable<IFlightFilterable> FlightsArray, DateTime startDate, DateTime endDate)
+    {
+        return FlightsArray.Where(obj => obj.Flight.DepartureDate >= startDate && obj.Flight.DepartureDate <= endDate);
+    }
+
+    public static IEnumerable<IFlightFilterable> FilterByClass(this IEnumerable<IFlightFilterable> FlightsArray, FlightClass flightClass)
+    {
+        return FlightsArray.Where(obj => obj.Flight.Class == flightClass);
+    }
+    
+    public static IEnumerable<IFlightFilterable> FilterByPriceRange(this IEnumerable<IFlightFilterable> FlightsArray, int minPrice, int maxPrice)
+    {
+        return FlightsArray.Where(obj => obj.Flight.Price >= minPrice && obj.Flight.Price <= maxPrice);
+    }
+
+    public static IEnumerable<IFlightFilterable> FilterByDepartureAirport(this IEnumerable<IFlightFilterable> FlightsArray, string airport)
+    {
+        return FlightsArray.Where(obj => obj.Flight.DepartureAirport == airport);
+    }
+    public static IEnumerable<IFlightFilterable> FilterByArrivalAirport(this IEnumerable<IFlightFilterable> FlightsArray, string airport)
+    {
+        return FlightsArray.Where(obj => obj.Flight.ArrivalAirport == airport);
     }
 }
