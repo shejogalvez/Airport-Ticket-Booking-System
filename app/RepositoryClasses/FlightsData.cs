@@ -3,6 +3,8 @@ namespace app.RepositoryClasses;
 using app.Model;
 
 using CsvHelper;
+using CsvHelper.Configuration;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 public static class FlightDataManager
 {
@@ -35,6 +37,21 @@ public static class FlightDataManager
         return Data;
     }
 
+    public static IList<ValidationResult> Validate(object model)
+    {
+        var results = new List<ValidationResult>();
+        var context = new ValidationContext(model);
+
+        Validator.TryValidateObject(
+            model,
+            context,
+            results,
+            validateAllProperties: true
+        );
+
+        return results;
+    }
+
 
     public static void ImportFromCsv(string filePath, bool overwrite = false)
     {
@@ -42,47 +59,65 @@ public static class FlightDataManager
         Flight[] records;
         try
         {
+
+            bool errorsFound = false;
+
+            CsvConfiguration csvConfig = new (CultureInfo.InvariantCulture) { 
+                ReadingExceptionOccurred = e =>
+                {         
+                    Console.WriteLine($"""
+                        Exception while reading csv on row {e.Exception.Context?.Reader?.CurrentIndex}:
+                        {e.Exception.Message}
+                        """
+                    );
+                    errorsFound = true;
+                    return false;
+                }, 
+            };
+
             using var reader = new StreamReader(filePath);
-            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+            using var csv = new CsvReader(reader, csvConfig);
             // read CSV file
             records = csv.GetRecords<Flight>().ToArray();
+            
+            // Validate records
+            if (records is null) return;
+            
+            for (int i=0; i<records.Length; i++)
+            {
+                var record = records[i];
+                var errors = Validate(record);
+                if (errors.Any()) {
+                    Console.WriteLine($"\nInvalid flight record found in row {i+1}:");
+                    foreach (var error in errors)
+                    {
+                        Console.WriteLine($"  - {error.ErrorMessage}");
+                    }
+                    errorsFound = true;
+                }
+                // Console.WriteLine($"{record}");
+            }
+            if (errorsFound) {
+                Console.WriteLine("\nImport aborted due to invalid records...");
+                return;
+            }
+
+            if (overwrite || _data is null)
+            {
+                _data = [.. records];
+                return;
+            }
+            else
+            {
+                _data = [.. _data.Concat([.. records])];
+            }
+        
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
             return;
         }
-
-        // Validate records
-        if (records is null) return;
-        
-        bool errorsFound = false;
-        for (int i=0; i<records.Length; i++)
-        {
-            var record = records[i];
-            var errors = record.GetErrors();
-            if (errors != ErrorCode.NoErrors) {
-                Console.WriteLine($"Invalid flight record found in row {i+1}:");
-                Console.WriteLine(errors);
-                errorsFound = true;
-            }
-            // Console.WriteLine($"{record}");
-        }
-        if (errorsFound) {
-            Console.WriteLine("Import aborted due to invalid records.");
-            return;
-        }
-
-        if (overwrite || _data is null)
-        {
-            _data = [.. records];
-            return;
-        }
-        else
-        {
-            _data = [.. _data.Concat([.. records])];
-        }
-        
         
     }
 
