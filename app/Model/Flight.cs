@@ -22,7 +22,7 @@ public record Flight(
 ) : IFlightFilterable
 {
     [Required]
-    [Range(0, double.MaxValue)]
+    [Range(0, int.MaxValue)]
     public int Price { get; init; } = Price;
 
     [Required]
