@@ -25,33 +25,39 @@ public class FlightQueryComponent<T>(IEnumerable<T> allData) where T : IFlightFi
         }
     }
 
-    // executes query from args and 
-    public void ExecuteQuery(string[]? args = null)
+    // executes query from args and returns true if query was successful
+    public bool ExecuteQuery(string[]? args = null)
     {
         // return all results
-        if (args is null)
-        {
-            return;
-        }
-        // else
+        if (args is null) return false;
+        
+        
         if (args.Length < 2)
         {
             Console.WriteLine("missing arguments for querying");
-            return;
+            return false;
         }
         if (args.Length > 3)
         {
             Console.WriteLine("too many arguments arguments for querying");
-            return;
+            return false;
         }
         if (args.Length == 2)
-            QueryResult = ParseQuery(QueryResult, args[0], args[1]);
-        
+        {
+            var q = ParseQuery(QueryResult, args[0], args[1]);
+            if (q is null) return false;
+            QueryResult = q;
+        }
         else if (args.Length == 3)
-            QueryResult = ParseQuery(QueryResult, args[0], args[1], args[2]);
+        {
+            var q = ParseQuery(QueryResult, args[0], args[1], args[2]);
+            if (q is null) return false;
+            QueryResult = q;
+        }
+        return true;
     }
 
-    private static IEnumerable<IFlightFilterable> ParseQuery(IEnumerable<IFlightFilterable> flights, string parameter, string argument)
+    private static IEnumerable<IFlightFilterable>? ParseQuery(IEnumerable<IFlightFilterable> flights, string parameter, string argument)
     {
         switch (parameter) {
             case "Price":
@@ -71,11 +77,11 @@ public class FlightQueryComponent<T>(IEnumerable<T> allData) where T : IFlightFi
                 FlightClass classParsed = Enum.Parse<FlightClass>(argument, true);
                 return flights.FilterByClass(classParsed);
             default: 
-                Console.WriteLine("undefined property of Flight class");
-                return flights;
+                Console.WriteLine($"undefined property {parameter} of Flight class");
+                return null;
         }
     }
-    private static IEnumerable<IFlightFilterable> ParseQuery(IEnumerable<IFlightFilterable> flights, string parameter, string min, string max)
+    private static IEnumerable<IFlightFilterable>? ParseQuery(IEnumerable<IFlightFilterable> flights, string parameter, string min, string max)
     {
         switch (parameter) {
             case "Price":
@@ -85,8 +91,8 @@ public class FlightQueryComponent<T>(IEnumerable<T> allData) where T : IFlightFi
             case "DepartureDate": 
                 return flights.FilterByDateRange(DateTime.Parse(min), DateTime.Parse(max));
             default: 
-                Console.WriteLine("undefined property of Flight class");
-                return flights;
+                Console.WriteLine($"undefined property {parameter} of Flight class");
+                return null;
         }
     }
 

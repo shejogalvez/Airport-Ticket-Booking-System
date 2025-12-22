@@ -25,8 +25,9 @@ public partial class Passenger(string username) : IUser
                 break;
             case "q":
             case "query":
-                QueryComponent.ExecuteQuery(args);
-                QueryComponent.DisplayQueryResults();
+                if (QueryComponent.ExecuteQuery(args))
+                    QueryComponent.DisplayQueryResults();
+                else Console.WriteLine("Query Failed");
                 break;
             case "b":
             case "booking":
