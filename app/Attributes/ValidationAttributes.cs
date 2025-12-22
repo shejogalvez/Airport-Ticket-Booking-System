@@ -17,6 +17,7 @@ public class NotInPastAttribute : ValidationAttribute
 
 public class LengthEqualsAttribute(int length) : ValidationAttribute
 {
+    public int Length => length;
     protected override ValidationResult? IsValid(object? value, ValidationContext context)
     {
         if (value is string str && str.Length != length)
