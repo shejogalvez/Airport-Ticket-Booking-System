@@ -11,6 +11,8 @@ public partial class Passenger(string username) : IUser
     public bool Authorize(string password) => true; // for the moment passenger don't require authorization
 
     private readonly FlightQueryComponent<Flight> QueryComponent = new (FlightDataManager.GetAllFlights());
+
+    public override string ToString() => Username;
     public void ExecuteCommand(string input)
     {
         var (command, args, _options) = IOUtils.ParseCommand(input);

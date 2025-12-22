@@ -45,4 +45,14 @@ public record Flight(
     
     public FlightClass? Class { get; init; } = Class;
     Flight IFlightFilterable.Flight => this;
+
+    public override string ToString()
+    {
+        return 
+        $"""
+        flight to {DestinationCountry} from {DepartureCountry} on {DepartureDate:yyyy-MM-dd}:
+          - Departure Airport: {DepartureAirport,-13}- Arrival Airport: {ArrivalAirport}
+          - Class: {Class,-25}- Price: ${Price}
+        """;
+    }
 };
