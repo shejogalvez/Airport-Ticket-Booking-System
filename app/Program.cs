@@ -2,6 +2,7 @@
 
 using app.Model;
 using app.Utils;
+using app.RepositoryClasses;
 
 class Program
 {
@@ -36,30 +37,32 @@ class Program
 
     static void Main(string[] args)
     {
-        IUser? user = null;
-        while (user is null)
-        {
-            Console.WriteLine("\nType 1 or 2 to select an user type:\n  1.passenger\n  2.manager");
-            var userType = IOUtils.ReadInput() ?? "0";
-            UserType userTypeCode = userType switch
+        while (true){
+            IUser? user = null;
+            while (user is null)
             {
-                "1" => UserType.Passenger,
-                "2" => UserType.Manager,
-                _ => 0
-            };
-            user = GetUser(userTypeCode);
+                Console.WriteLine("\nType 1 or 2 to select an user type:\n  1.passenger\n  2.manager");
+                var userType = IOUtils.ReadInput() ?? "0";
+                UserType userTypeCode = userType switch
+                {
+                    "1" => UserType.Passenger,
+                    "2" => UserType.Manager,
+                    _ => 0
+                };
+                user = GetUser(userTypeCode);
+            }
+            
+            string? command = "something";
+            while (command != "logout")
+            {
+                Console.WriteLine("insert commands for user, type help to list commands");
+                command = IOUtils.ReadInput() ?? "";
+                if (command == "logout") continue;
+                if (command.Equals("help", StringComparison.CurrentCultureIgnoreCase))
+                    user.ShowCommands();
+                else
+                    user.ExecuteCommand(command);
+            }
         }
-        
-
-        while (true)
-        {
-            Console.WriteLine("insert commands for user, type help to list commands");
-            string? command = IOUtils.ReadInput() ?? "";
-            if (command.Equals("help", StringComparison.CurrentCultureIgnoreCase))
-                user.ShowCommands();
-            else
-                user.ExecuteCommand(command);
-        }
-
     }
 }
