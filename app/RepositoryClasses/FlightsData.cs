@@ -53,7 +53,12 @@ public static class FlightDataManager
     }
 
 
-    public static void ImportFromCsv(string filePath, bool overwrite = false)
+    public static void ImportFromCsv(
+        string filePath,
+        bool validate = true,
+        bool skip = false,
+        bool overwrite = false
+     )
     {
         filePath = Path.GetFullPath(filePath);
         Flight[] records;
@@ -67,7 +72,7 @@ public static class FlightDataManager
                 {         
                     Console.WriteLine($"""
                         Exception while reading csv on row {e.Exception.Context?.Reader?.CurrentIndex}:
-                        {e.Exception.Message}
+                        {(validate ? e.Exception.Message : e)}
                         """
                     );
                     errorsFound = true;
@@ -83,21 +88,27 @@ public static class FlightDataManager
             // Validate records
             if (records is null) return;
             
-            for (int i=0; i<records.Length; i++)
+            List<Flight> valid_records = [];
+            if (validate)
             {
-                var record = records[i];
-                var errors = Validate(record);
-                if (errors.Any()) {
-                    Console.WriteLine($"\nInvalid flight record found in row {i+1}:");
-                    foreach (var error in errors)
-                    {
-                        Console.WriteLine($"  - {error.ErrorMessage}");
+                for (int i=0; i<records.Length; i++)
+                {
+                    var record = records[i];
+                    var errors = Validate(record);
+                    if (errors.Any()) {
+                        Console.WriteLine($"\nInvalid flight record found in row {i+1}:");
+                        foreach (var error in errors)
+                        {
+                            Console.WriteLine($"  - {error.ErrorMessage}");
+                        }
+                        errorsFound = true;
                     }
-                    errorsFound = true;
+                    else valid_records.Add(record);
+                    // Console.WriteLine($"{record}");
                 }
-                // Console.WriteLine($"{record}");
+                if (!errorsFound) Console.WriteLine("No errors were found on the file!");
             }
-            if (errorsFound) {
+            if (errorsFound && !skip) {
                 Console.WriteLine("\nImport aborted due to invalid records...");
                 return;
             }
@@ -105,19 +116,21 @@ public static class FlightDataManager
             if (overwrite || _data is null)
             {
                 _data = [.. records];
-                return;
             }
             else
             {
                 _data = [.. _data.Concat([.. records])];
             }
+            Console.WriteLine("\nData successfully imported!");
         
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            Console.WriteLine($"unknown exception encountered: {e}");
             return;
         }
+
+
         
     }
 
