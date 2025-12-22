@@ -1,7 +1,7 @@
 namespace app.Model;
 
 public record Booking(
-    Passenger Passenger,
+    IUser Passenger,
     Flight Flight
 ) : IFlightFilterable
 {

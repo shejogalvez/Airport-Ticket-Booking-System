@@ -3,34 +3,55 @@ namespace app.RepositoryClasses;
 using app.Model;
 static class BookingsManager
 {
-    private readonly static Dictionary<Guid, Booking> bookings = [];
-
-    public static IEnumerable<Booking> Bookings => bookings.Select(key_value => key_value.Value);
-    public static void AddBooking(Passenger passenger, Flight flight)
+    private class CustomDictionary : Dictionary<string, Dictionary<Guid, Booking>>, IEnumerable<Booking>
     {
-        Booking booking = new (passenger, flight);
+        IEnumerator<Booking> IEnumerable<Booking>.GetEnumerator()
+        {
+            foreach (var userBookings in Values)
+            {
+                foreach (var booking in userBookings.Values)
+                {
+                    yield return booking;
+                }
+            }
+        }
+    }
+
+    private readonly static CustomDictionary bookings = [];
+
+    public static IEnumerable<Booking> Bookings => bookings;
+    public static void AddBooking(IUser user, Flight flight)
+    {
+        Booking booking = new (user, flight);
         var id = booking.ID;
-        bookings.Add(id, booking);
+        bookings.TryAdd(user.Username, []);
+        bookings[user.Username].Add(id, booking);
     }
 
     // returns true if key exists
-    public static bool RemoveBookingByID(Guid id)
+    public static bool RemoveBookingByUserAndID(IUser user, Guid id)
     {
-        return bookings.Remove(id);
+        if (!bookings.TryGetValue(user.Username, out Dictionary<Guid, Booking>? value)) return false;
+        return value.Remove(id);
     }
-    public static IEnumerable<Booking> GetBookingsByPassenger(Passenger passenger)
+    public static IEnumerable<Booking> GetBookingsByPassenger(IUser user)
     {
-        return bookings
-        .Select(key_value => key_value.Value)
-        .Where(booking => booking.Passenger == passenger);
+        bookings.TryGetValue(user.Username, out Dictionary<Guid, Booking>? value);
+        return value is not null ? value.Select(key_value => key_value.Value) : [];
     }
 
     // returns true if key exists
-    public static bool UpdateBookingByID(Guid bookingID, Flight newFlight)
+    public static bool UpdateBookingByUserAndID(IUser user, Guid bookingID, Flight newFlight)
     {
-        var res = bookings.TryGetValue(bookingID, out Booking? booking);
+        bookings.TryGetValue(user.Username, out Dictionary<Guid, Booking>? value);
+        if (value is null) return false;
+        var res = value.TryGetValue(bookingID, out Booking? booking);
         if (!res) return false;
-        bookings[bookingID] = booking! with {Flight = newFlight};
+        value[bookingID] = booking! with {Flight = newFlight};
         return true;
     }
+    public static bool RemoveBookingByUserAndID(IUser user, string id) => 
+        Guid.TryParse(id, out Guid guid) && RemoveBookingByUserAndID(user, guid);
+    public static bool UpdateBookingByUserAndID(IUser user, string id, Flight newFlight)=> 
+        Guid.TryParse(id, out Guid guid) && UpdateBookingByUserAndID(user, guid, newFlight);
 }

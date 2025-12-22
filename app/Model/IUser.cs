@@ -1,4 +1,6 @@
-interface IUser
+namespace app.Model;
+
+public interface IUser
 {
     public string Username { get; init; }
 
