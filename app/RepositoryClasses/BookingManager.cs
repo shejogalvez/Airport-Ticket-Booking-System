@@ -5,6 +5,7 @@ static class BookingsManager
 {
     private readonly static Dictionary<Guid, Booking> bookings = [];
 
+    public static IEnumerable<Booking> Bookings => bookings.Select(key_value => key_value.Value);
     public static void AddBooking(Passenger passenger, Flight flight)
     {
         Booking booking = new (passenger, flight);
