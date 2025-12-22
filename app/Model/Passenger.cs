@@ -52,6 +52,30 @@ public partial class Passenger(string username) : IUser
                 BookingsManager.AddBooking(this, flight);
                 Console.WriteLine($"booking flight {args[0]} was successful");
                 break;
+            case "d":
+            case "delete_booking":
+                if (args.Length != 1)
+                {
+                    Console.WriteLine("provide only the ID of the booking");
+                    break;
+                }
+                if (BookingsManager.RemoveBookingByUserAndID(this, args[0]))
+                    Console.WriteLine("Booking deleted Successfully");
+                else Console.WriteLine("Couldn't delete the booking, check the spelling of the ID provided");
+                break;
+            case "u":
+            case "update_booking":
+                if (args.Length != 2)
+                {
+                    Console.WriteLine("provide only the ID of the booking followed by the flight index");
+                    break;
+                }
+                index = int.Parse(args[1]);
+                flight = QueryComponent.GetQueryResults().ElementAt(index-1);
+                if (BookingsManager.UpdateBookingByUserAndID(this, args[0], flight))
+                    Console.WriteLine("Booking updated Successfully");
+                else Console.WriteLine("Couldn't update the booking, check the spelling of the ID provided");
+                break;
             default:
                 Console.WriteLine("invalid command, to show commands type help");
                 break;
@@ -68,6 +92,8 @@ public partial class Passenger(string username) : IUser
         query (q) <Parameter> <min> <max> - filters last displayed results for min <= Parameter <= max
         booking (b) - display bookings made by yourself
         booking (b) <(int) index> - book the index-th flight showed in last displayed results
+        delete_booking (d) <booking_id> - deletes the booking with the given ID made by the user
+        update_booking (u) <booking_id> <flight_index> - changes flight of booking with given ID to the index-th flight showed in last displayed results
         """;
 
         Console.WriteLine(instructions);
