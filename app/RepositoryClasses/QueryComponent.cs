@@ -18,10 +18,10 @@ public class FlightQueryComponent<T>(IEnumerable<T> allData) where T : IFlightFi
     }
     public void DisplayQueryResults()
     {
-        for (int i=0; i<QueryResult.Count(); i++)
+        int i = 0;
+        foreach (var item in QueryResult)
         {
-            var item = QueryResult.ElementAt(i);
-            Console.WriteLine($"{i+1}. {item}");
+            Console.WriteLine($"{++i}. {item}");
         }
     }
 
@@ -44,7 +44,6 @@ public class FlightQueryComponent<T>(IEnumerable<T> allData) where T : IFlightFi
             Console.WriteLine("too many arguments arguments for querying");
             return;
         }
-        Console.WriteLine(string.Join(" ", args));
         if (args.Length == 2)
             QueryResult = ParseQuery(QueryResult, args[0], args[1]);
         
