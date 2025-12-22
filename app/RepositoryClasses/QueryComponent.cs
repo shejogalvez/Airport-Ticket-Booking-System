@@ -95,18 +95,4 @@ public class FlightQueryComponent<T>(IEnumerable<T> allData) where T : IFlightFi
                 return null;
         }
     }
-
-    // Overload with casting methods
-    public static IEnumerable<Flight> ParseQuery(IEnumerable<Flight> flights, string parameter, string min, string max) 
-        => ParseQuery(flights, parameter, min, max).Cast<Flight>();
-        
-    public static IEnumerable<Flight> ParseQuery(IEnumerable<Flight> flights, string parameter, string argument)
-        => ParseQuery(flights, parameter, argument).Cast<Flight>();
-
-    public static IEnumerable<Booking> ParseQuery(IEnumerable<Booking> flights, string parameter, string min, string max) 
-        => ParseQuery(flights, parameter, min, max).Cast<Booking>();
-        
-    public static IEnumerable<Booking> ParseQuery(IEnumerable<Booking> flights, string parameter, string argument)
-        => ParseQuery(flights, parameter, argument).Cast<Booking>();
-    
 }
