@@ -1,11 +1,58 @@
-namespace app.Utils;
+namespace app.RepositoryClasses;
 
-using app.Model;
 using app.Extensions;
+using app.Model;
+public class FlightQueryComponent<T>(IEnumerable<T> allData) where T : IFlightFilterable
+{
+    private IEnumerable<IFlightFilterable> AllData { get; } = (IEnumerable<IFlightFilterable>) allData;
+    private IEnumerable<IFlightFilterable> QueryResult { get; set; } = (IEnumerable<IFlightFilterable>) allData;
 
-public static class IOParser {
-    
-    public static IEnumerable<IFlightFilterable> ParseQuery(IEnumerable<IFlightFilterable> flights, string parameter, string argument)
+    public IEnumerable<T> GetQueryResults()
+    {
+        return QueryResult.Cast<T>();
+    }
+
+    public void ResetQuery()
+    {
+        QueryResult = AllData;
+    }
+    public void DisplayQueryResults()
+    {
+        for (int i=0; i<QueryResult.Count(); i++)
+        {
+            var item = QueryResult.ElementAt(i);
+            Console.WriteLine($"{i+1}. {item}");
+        }
+    }
+
+    // executes query from args and 
+    public void ExecuteQuery(string[]? args = null)
+    {
+        // return all results
+        if (args is null)
+        {
+            return;
+        }
+        // else
+        if (args.Length < 2)
+        {
+            Console.WriteLine("missing arguments for querying");
+            return;
+        }
+        if (args.Length > 3)
+        {
+            Console.WriteLine("too many arguments arguments for querying");
+            return;
+        }
+        Console.WriteLine(string.Join(" ", args));
+        if (args.Length == 2)
+            QueryResult = ParseQuery(QueryResult, args[0], args[1]);
+        
+        else if (args.Length == 3)
+            QueryResult = ParseQuery(QueryResult, args[0], args[1], args[2]);
+    }
+
+    private static IEnumerable<IFlightFilterable> ParseQuery(IEnumerable<IFlightFilterable> flights, string parameter, string argument)
     {
         switch (parameter) {
             case "Price":
@@ -29,7 +76,7 @@ public static class IOParser {
                 return flights;
         }
     }
-    public static IEnumerable<IFlightFilterable> ParseQuery(IEnumerable<IFlightFilterable> flights, string parameter, string min, string max)
+    private static IEnumerable<IFlightFilterable> ParseQuery(IEnumerable<IFlightFilterable> flights, string parameter, string min, string max)
     {
         switch (parameter) {
             case "Price":
@@ -56,5 +103,5 @@ public static class IOParser {
         
     public static IEnumerable<Booking> ParseQuery(IEnumerable<Booking> flights, string parameter, string argument)
         => ParseQuery(flights, parameter, argument).Cast<Booking>();
-        
+    
 }

@@ -1,61 +1,34 @@
 using System.Text.RegularExpressions;
 using app.RepositoryClasses;
+using app.Utils;
 
 namespace app.Model;
 
-using Parser = app.Utils.IOParser;
 public partial class Passenger(string username) : IUser
 {
     public string Username { get; init; } = username;
 
     public bool Authorize(string password) => true; // for the moment passenger don't require authorization
 
-
-    
-
-    private IEnumerable<Flight> QueryResult { get => field ?? FlightDataManager.GetAllFlights();  set; }
-
-    private void DisplayFlightList()
+    private readonly FlightQueryComponent<Flight> QueryComponent = new (FlightDataManager.GetAllFlights());
+    public void ExecuteCommand(string input)
     {
-        for (int i=0; i<QueryResult.Count(); i++)
-        {
-            var item = QueryResult.ElementAt(i);
-            Console.WriteLine($"{i+1}. {item}");
-        }
-    }
-    public void ExecuteCommand(string command)
-    {
-        var matches = MyRegex().Matches(command).Select(m => m.ToString());
-        switch (matches.First())
+        var (command, args, _options) = IOUtils.ParseCommand(input);
+        switch (command)
         {
             case "a":
             case "all_flights":
-                QueryResult = FlightDataManager.GetAllFlights();
-                DisplayFlightList();
+                QueryComponent.ResetQuery();
+                QueryComponent.DisplayQueryResults();
                 break;
             case "q":
             case "query":
-                if (matches.Count() < 3)
-                {
-                    Console.WriteLine("missing arguments for querying");
-                    break;
-                }
-                if (matches.Count() > 4)
-                {
-                    Console.WriteLine("too many arguments arguments for querying");
-                    break;
-                }
-                if (matches.Count() == 3)
-                    QueryResult = Parser.ParseQuery(QueryResult, matches.ElementAt(1), matches.ElementAt(2));
-                
-                else if (matches.Count() == 4)
-                    QueryResult = Parser.ParseQuery(QueryResult, matches.ElementAt(1), matches.ElementAt(2), matches.ElementAt(3));
-
-                DisplayFlightList();
+                QueryComponent.ExecuteQuery(args);
+                QueryComponent.DisplayQueryResults();
                 break;
             case "b":
             case "booking":
-                if (matches.Count() == 1)
+                if (args.Length == 0)
                 {
                     var bookings = BookingsManager.GetBookingsByPassenger(this);
                     if (!bookings.Any()) Console.WriteLine($"No bookings made by user {Username}");
@@ -67,15 +40,15 @@ public partial class Passenger(string username) : IUser
                     }
                     break;
                 }
-                if (matches.Count() != 2)
+                if (args.Length > 1)
                 {
                     Console.WriteLine("write only an index of the list");
                     break;
                 }
-                int index = int.Parse(matches.ElementAt(1));
-                var flight = QueryResult.ElementAt(index-1);
+                int index = int.Parse(args[0]);
+                var flight = QueryComponent.GetQueryResults().ElementAt(index-1);
                 BookingsManager.AddBooking(this, flight);
-                Console.WriteLine($"booking flight {matches.ElementAt(1)} was successful");
+                Console.WriteLine($"booking flight {args[0]} was successful");
                 break;
             default:
                 Console.WriteLine("invalid command, to show commands type help");
