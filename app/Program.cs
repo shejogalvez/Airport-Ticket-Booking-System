@@ -13,6 +13,7 @@ class Program
 
     static IUser? GetUser(UserType type)
     {
+        if (type == 0) return null;
         Console.WriteLine("\ninsert username:");
         string username = IOUtils.ReadInput() ?? "default_username";
         IUser user = type switch
