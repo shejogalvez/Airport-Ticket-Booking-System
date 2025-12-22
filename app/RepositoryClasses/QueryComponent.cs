@@ -5,7 +5,7 @@ using app.Model;
 public class FlightQueryComponent<T>(IEnumerable<T> allData) where T : IFlightFilterable
 {
     private IEnumerable<IFlightFilterable> AllData { get; } = (IEnumerable<IFlightFilterable>) allData;
-    private IEnumerable<IFlightFilterable> QueryResult { get; set; } = (IEnumerable<IFlightFilterable>) allData;
+    protected IEnumerable<IFlightFilterable> QueryResult { get; set; } = (IEnumerable<IFlightFilterable>) allData;
 
     public IEnumerable<T> GetQueryResults()
     {
@@ -26,7 +26,7 @@ public class FlightQueryComponent<T>(IEnumerable<T> allData) where T : IFlightFi
     }
 
     // executes query from args and returns true if query was successful
-    public bool ExecuteQuery(string[]? args = null)
+    public virtual bool ExecuteQuery(string[]? args = null)
     {
         // return all results
         if (args is null) return false;

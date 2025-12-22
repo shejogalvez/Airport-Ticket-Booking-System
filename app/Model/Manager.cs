@@ -12,7 +12,7 @@ partial class Manager(string username) : IUser
 
     public bool Authorize(string password) => password == _password;
     
-    private readonly FlightQueryComponent<Booking> QueryComponent = new (BookingsManager.Bookings);
+    private readonly BookingQueryComponent QueryComponent = new (BookingsManager.Bookings);
 
     public void ExecuteCommand(string input)
     {
