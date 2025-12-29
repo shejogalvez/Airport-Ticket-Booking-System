@@ -18,6 +18,8 @@ public class DataSaverComponent<T>
         _filepath = Path.Join(dbDirectory, $"{filename}.json");
         if (!File.Exists(_filepath))
         {
+            var file = new FileInfo(_filepath);
+            file.Directory!.Create();
             using FileStream jsonFile = File.Create(_filepath);
             JsonSerializer.Serialize<IEnumerable<T>>(jsonFile, []);
         }
