@@ -17,8 +17,23 @@ static class BookingsManager
         }
     }
 
-    private readonly static CustomDictionary bookings = [];
-
+    private static DataSaverComponent<Booking> SaveComponent { get; } = new ("data");
+    private static CustomDictionary bookings
+    {
+        get
+        {
+            if (field is not null) return field;
+            var res = new CustomDictionary();
+            foreach (Booking row in SaveComponent.Data)
+            {
+                res.TryAdd(row.Passenger.Username, []);
+                res[row.Passenger.Username].Add(row.ID, row);
+            }
+            field = res;
+            //Console.WriteLine($"received {res.Count} users");
+            return res;
+        }
+    }
     public static IEnumerable<Booking> Bookings => bookings;
     public static void AddBooking(Passenger user, Flight flight)
     {
@@ -26,13 +41,16 @@ static class BookingsManager
         var id = booking.ID;
         bookings.TryAdd(user.Username, []);
         bookings[user.Username].Add(id, booking);
+        SaveComponent.Save(bookings);
     }
 
     // returns true if key exists
     public static bool RemoveBookingByUserAndID(Passenger user, Guid id)
     {
         if (!bookings.TryGetValue(user.Username, out Dictionary<Guid, Booking>? value)) return false;
-        return value.Remove(id);
+        bool res = value.Remove(id);
+        SaveComponent.Save(bookings);
+        return res;
     }
     public static IEnumerable<Booking> GetBookingsByPassenger(Passenger user)
     {
@@ -48,6 +66,7 @@ static class BookingsManager
         var res = value.TryGetValue(bookingID, out Booking? booking);
         if (!res) return false;
         value[bookingID] = booking! with {Flight = newFlight};
+        SaveComponent.Save(bookings);
         return true;
     }
     public static bool RemoveBookingByUserAndID(Passenger user, string id) => 
