@@ -20,7 +20,7 @@ static class BookingsManager
     private readonly static CustomDictionary bookings = [];
 
     public static IEnumerable<Booking> Bookings => bookings;
-    public static void AddBooking(IUser user, Flight flight)
+    public static void AddBooking(Passenger user, Flight flight)
     {
         Booking booking = new (user, flight);
         var id = booking.ID;
@@ -29,19 +29,19 @@ static class BookingsManager
     }
 
     // returns true if key exists
-    public static bool RemoveBookingByUserAndID(IUser user, Guid id)
+    public static bool RemoveBookingByUserAndID(Passenger user, Guid id)
     {
         if (!bookings.TryGetValue(user.Username, out Dictionary<Guid, Booking>? value)) return false;
         return value.Remove(id);
     }
-    public static IEnumerable<Booking> GetBookingsByPassenger(IUser user)
+    public static IEnumerable<Booking> GetBookingsByPassenger(Passenger user)
     {
         bookings.TryGetValue(user.Username, out Dictionary<Guid, Booking>? value);
         return value is not null ? value.Select(key_value => key_value.Value) : [];
     }
 
     // returns true if key exists
-    public static bool UpdateBookingByUserAndID(IUser user, Guid bookingID, Flight newFlight)
+    public static bool UpdateBookingByUserAndID(Passenger user, Guid bookingID, Flight newFlight)
     {
         bookings.TryGetValue(user.Username, out Dictionary<Guid, Booking>? value);
         if (value is null) return false;
@@ -50,8 +50,8 @@ static class BookingsManager
         value[bookingID] = booking! with {Flight = newFlight};
         return true;
     }
-    public static bool RemoveBookingByUserAndID(IUser user, string id) => 
+    public static bool RemoveBookingByUserAndID(Passenger user, string id) => 
         Guid.TryParse(id, out Guid guid) && RemoveBookingByUserAndID(user, guid);
-    public static bool UpdateBookingByUserAndID(IUser user, string id, Flight newFlight)=> 
+    public static bool UpdateBookingByUserAndID(Passenger user, string id, Flight newFlight)=> 
         Guid.TryParse(id, out Guid guid) && UpdateBookingByUserAndID(user, guid, newFlight);
 }
