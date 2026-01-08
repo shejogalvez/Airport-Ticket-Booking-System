@@ -8,7 +8,7 @@ public class NotInPastAttribute : ValidationAttribute
     {
         if (value is DateTime date && date < DateTime.UtcNow)
         {
-            return new ValidationResult($"{context.DisplayName} field cannot be in the future.");
+            return new ValidationResult($"{context.DisplayName} field cannot be in the past.");
         }
 
         return ValidationResult.Success;
